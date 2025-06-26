@@ -33,6 +33,7 @@ export default function RoomPage({ params }: { params: Promise<{ id: string }> }
       isCurrent: false,
       timer: 0,
       running: false,
+      online: true,
     };
     const cleanup = joinRoom(id, player, (newRoom) => {
       if (room && newRoom) {
