@@ -1,36 +1,53 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# CHGK Alphabet Trainer
 
-## Getting Started
+Веб-приложение для тренировки команды ЧГК по ассоциациям с буквами русского алфавита.
 
-First, run the development server:
+## Стек технологий
+- **Next.js** (App Router, TypeScript)
+- **Tailwind CSS**
+- **shadcn/ui** — библиотека компонентов
+- **next-auth** — аутентификация через Google и Яндекс
+- **Upstash Redis** — real-time синхронизация состояния комнат
+- **Socket.io** — мгновенная синхронизация между клиентами
+- **Zustand + Immer** — управление состоянием на клиенте
+- **dnd-kit** — drag-and-drop для очередности игроков
 
-```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
-```
+## Архитектура
+- **Монорепозиторий** (src/app — страницы, src/lib — утилиты)
+- **API-роуты** Next.js для аутентификации и real-time
+- **Socket.io** для real-time событий (таймеры, ходы, уведомления)
+- **Upstash Redis** для хранения состояния комнат
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+## Флоу пользователя
+1. Пользователь заходит на сайт, может создать комнату.
+2. После создания комнаты появляется ссылка для приглашения других участников.
+3. При переходе по ссылке — вход через Google или Яндекс.
+4. После входа — страница с алфавитом, таймерами и очередностью игроков.
+5. Каждый игрок видит таймеры всех участников в реальном времени, может ставить на паузу, сбрасывать, передавать ход, менять порядок игроков drag-and-drop, удалять игроков.
+6. При перезагрузке страницы состояние комнаты и ход не теряются.
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+## Разработка
+- `npm run dev` — запуск локально
+- Все ключи и секреты хранятся в `.env.local`
+- Для Upstash Redis нужен бесплатный аккаунт
+- Для OAuth — Google и Яндекс приложения
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+## TODO
+- [ ] Реализация аутентификации
+- [x] Реализация real-time синхронизации алфавита через socket.io
+- [x] Реализация real-time таймеров и очередности игроков
+- [x] Передача хода, удаление игрока, отображение таймеров всех игроков
+- [x] Drag-and-drop очередности
+- [x] Уведомления и real-time события (пауза, сброс, кик, вход/выход, передача хода)
+- [x] Аватарки игроков
+- [x] Сохранение состояния комнат в Redis (Upstash)
+- [ ] Финальный UI-полиш и тесты
 
-## Learn More
+## Архитектурные детали
+- Состояние вычеркнутых букв хранится в памяти сервера (Map), позже будет вынесено в Redis для масштабирования.
+- Все события socket.io namespaced по roomId, чтобы не было утечек между комнатами.
+- Для production рекомендуется вынести socket.io сервер в отдельный процесс или использовать edge-compatible WebSocket сервис.
 
-To learn more about Next.js, take a look at the following resources:
+---
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
-
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
-
-## Deploy on Vercel
-
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
-
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+Pull requests и вопросы приветствуются!
