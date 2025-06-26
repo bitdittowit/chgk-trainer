@@ -16,7 +16,6 @@ export function AlphabetTable({ crossed, onClick } : {
           variant={crossed.includes(letter) ? "outline" : "default"}
           className={crossed.includes(letter) ? "line-through opacity-50" : ""}
           onClick={() => onClick(letter)}
-          disabled={crossed.includes(letter)}
         >
           {letter}
         </Button>

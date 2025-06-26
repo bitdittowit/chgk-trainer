@@ -7,12 +7,14 @@ export function Timer({
   onStart,
   onPause,
   onReset,
+  canStart = true,
 }: {
   running: boolean;
   value: number;
   onStart: () => void;
   onPause: () => void;
   onReset: () => void;
+  canStart?: boolean;
 }) {
   const minutes = Math.floor(value / 60)
     .toString()
@@ -25,7 +27,7 @@ export function Timer({
       {running ? (
         <Button size="sm" variant="outline" onClick={onPause}>Пауза</Button>
       ) : (
-        <Button size="sm" onClick={onStart}>Старт</Button>
+        <Button size="sm" onClick={onStart} disabled={!canStart}>Старт</Button>
       )}
       <Button size="sm" variant="ghost" onClick={onReset}>Сброс</Button>
     </div>

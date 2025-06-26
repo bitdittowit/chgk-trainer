@@ -16,7 +16,7 @@ import {
 } from "@dnd-kit/sortable";
 import { CSS } from "@dnd-kit/utilities";
 
-type Player = { id: string; name: string; avatar?: string; isCurrent: boolean; timer: number; running: boolean };
+type Player = { id: string; name: string; avatar?: string; isCurrent: boolean; timer: number; running: boolean; online?: boolean };
 type PlayerRowProps = {
   p: Player & { onPass: (id: string) => void; onKick: (id: string) => void };
   current: string;
@@ -41,7 +41,10 @@ function PlayerRow({ p, current, ref, style }: PlayerRowProps) {
           className="w-8 h-8 rounded-full object-cover"
         />
       )}
-      <span className="flex-1">{p.name}</span>
+      <span className="flex items-center flex-1">
+        <span className={`inline-block w-2 h-2 rounded-full mr-2 ${p.online === false ? 'bg-gray-400' : 'bg-green-500'}`}></span>
+        {p.name}
+      </span>
       <span className="w-20 text-right font-mono">{Math.floor(p.timer / 60).toString().padStart(2, "0")}:{(p.timer % 60).toString().padStart(2, "0")}{p.running ? " ⏱️" : ""}</span>
       <Button size="sm" variant="ghost" onClick={() => p.onPass(p.id)} disabled={current === p.id}>Передать ход</Button>
       <Button size="sm" variant="destructive" onClick={() => p.onKick(p.id)}>Удалить</Button>

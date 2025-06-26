@@ -16,6 +16,11 @@ export function crossLetter(roomId: string, letter: string) {
   socket.emit("room:cross", { roomId, letter });
 }
 
+export function uncrossLetter(roomId: string, letter: string) {
+  const socket = getSocket();
+  socket.emit("room:uncross", { roomId, letter });
+}
+
 export function startTimer(roomId: string, playerId: string) {
   const socket = getSocket();
   socket.emit("room:timer:start", { roomId, playerId });
@@ -44,4 +49,14 @@ export function kickPlayer(roomId: string, playerId: string) {
 export function reorderPlayers(roomId: string, order: string[]) {
   const socket = getSocket();
   socket.emit("room:order", { roomId, order });
+}
+
+export function startTraining(roomId: string) {
+  const socket = getSocket();
+  socket.emit("room:start", { roomId });
+}
+
+export function restartTraining(roomId: string) {
+  const socket = getSocket();
+  socket.emit("room:restart", { roomId });
 } 

@@ -5,9 +5,10 @@ import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
 import { Button } from "@/components/ui/button";
 import { AlphabetTable, Timer, PlayersList } from "@/components/room";
-import { joinRoom, crossLetter, startTimer, pauseTimer, resetTimer, passTurn, kickPlayer, reorderPlayers } from "@/lib/roomClient";
+import { joinRoom, crossLetter, uncrossLetter, startTimer, pauseTimer, resetTimer, passTurn, kickPlayer, reorderPlayers, startTraining, restartTraining } from "@/lib/roomClient";
 import type { Player, RoomState } from "@/types/room";
 import { Toast } from "@/components/ui/toast";
+import { getSocket } from "@/lib/socket";
 
 export default function RoomPage({ params }: { params: Promise<{ id: string }> }) {
   const { id } = React.use(params);
@@ -46,7 +47,14 @@ export default function RoomPage({ params }: { params: Promise<{ id: string }> }
       }
       setRoom(newRoom);
     });
-    return cleanup;
+    // Подписка на room:toast
+    const socket = getSocket();
+    const onToast = (msg: string) => setToast({ open: true, message: msg });
+    socket.on("room:toast", onToast);
+    return () => {
+      cleanup();
+      socket.off("room:toast", onToast);
+    };
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [session, id]);
 
@@ -54,13 +62,17 @@ export default function RoomPage({ params }: { params: Promise<{ id: string }> }
   if (!session) return null;
 
   function handleCross(letter: string) {
-    crossLetter(id, letter);
+    if (room?.crossed.includes(letter)) {
+      uncrossLetter(id, letter);
+    } else {
+      crossLetter(id, letter);
+    }
   }
 
   const currentPlayer = room?.players.find((p) => p.id === (session?.user as { id?: string })?.id);
 
   function handleStart() {
-    if (currentPlayer) startTimer(id, currentPlayer.id);
+    if (currentPlayer && room?.current === currentPlayer.id) startTimer(id, currentPlayer.id);
   }
   function handlePause() {
     if (currentPlayer) pauseTimer(id, currentPlayer.id);
@@ -78,6 +90,16 @@ export default function RoomPage({ params }: { params: Promise<{ id: string }> }
     reorderPlayers(id, order);
   }
 
+  const anyTimerRunning = room?.players.some((p) => p.running);
+  const allLettersCrossed = room && room.crossed.length === 33; // 33 буквы русского алфавита
+
+  function handleStartTraining() {
+    startTraining(id);
+  }
+  function handleRestartTraining() {
+    restartTraining(id);
+  }
+
   return (
     <main className="flex min-h-screen flex-col items-center justify-center gap-8 px-2 sm:px-0 bg-gradient-to-br from-background to-muted">
       <h2 className="text-2xl sm:text-3xl font-bold text-center">Комната: {id}</h2>
@@ -90,6 +112,7 @@ export default function RoomPage({ params }: { params: Promise<{ id: string }> }
             onStart={handleStart}
             onPause={handlePause}
             onReset={handleReset}
+            canStart={room?.current === currentPlayer?.id}
           />
           <span className="text-xs text-muted-foreground">Ваш персональный таймер. Запускайте только на своём ходу!</span>
         </div>
@@ -103,6 +126,16 @@ export default function RoomPage({ params }: { params: Promise<{ id: string }> }
           />
           <span className="text-xs text-muted-foreground block mt-2">Перетаскивайте игроков для изменения очередности. <br />Текущий игрок выделен цветом.</span>
         </div>
+        {!anyTimerRunning && !allLettersCrossed && (
+          <Button className="mt-4" onClick={handleStartTraining}>
+            Начать тренировку
+          </Button>
+        )}
+        {allLettersCrossed && (
+          <Button className="mt-4" variant="secondary" onClick={handleRestartTraining}>
+            Начать заново
+          </Button>
+        )}
       </div>
       <Button variant="outline" className="mt-4" onClick={() => router.push("/")}>Выйти</Button>
       <Toast message={toast.message} open={toast.open} onClose={() => setToast({ ...toast, open: false })} />

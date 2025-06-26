@@ -5,6 +5,7 @@ export interface Player {
   isCurrent: boolean;
   timer: number;
   running: boolean;
+  online: boolean;
 }
 
 export interface RoomState {
