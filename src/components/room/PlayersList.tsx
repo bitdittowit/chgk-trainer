@@ -1,4 +1,5 @@
 import { Button } from "@/components/ui/button";
+import Image from "next/image";
 import {
   DndContext,
   closestCenter,
@@ -15,17 +16,31 @@ import {
 } from "@dnd-kit/sortable";
 import { CSS } from "@dnd-kit/utilities";
 
-function PlayerRow({ p, current, listeners, attributes, ref, style }: any) {
+type Player = { id: string; name: string; avatar?: string; isCurrent: boolean; timer: number; running: boolean };
+type PlayerRowProps = {
+  p: Player & { onPass: (id: string) => void; onKick: (id: string) => void };
+  current: string;
+  ref: React.Ref<HTMLDivElement>;
+  style: React.CSSProperties;
+};
+
+function PlayerRow({ p, current, ref, style }: PlayerRowProps) {
   return (
     <div
       ref={ref}
       style={style}
-      {...attributes}
-      {...listeners}
       className={`flex items-center gap-4 p-2 rounded ${current === p.id ? "bg-accent font-bold" : ""}`}
     >
       <span className="cursor-move">☰</span>
-      {p.avatar && <img src={p.avatar} alt={p.name} className="w-8 h-8 rounded-full object-cover" />}
+      {p.avatar && (
+        <Image
+          src={p.avatar}
+          alt={p.name}
+          width={32}
+          height={32}
+          className="w-8 h-8 rounded-full object-cover"
+        />
+      )}
       <span className="flex-1">{p.name}</span>
       <span className="w-20 text-right font-mono">{Math.floor(p.timer / 60).toString().padStart(2, "0")}:{(p.timer % 60).toString().padStart(2, "0")}{p.running ? " ⏱️" : ""}</span>
       <Button size="sm" variant="ghost" onClick={() => p.onPass(p.id)} disabled={current === p.id}>Передать ход</Button>
@@ -34,8 +49,15 @@ function PlayerRow({ p, current, listeners, attributes, ref, style }: any) {
   );
 }
 
-function SortablePlayer({ p, current, onPass, onKick }: any) {
-  const { attributes, listeners, setNodeRef, transform, transition } = useSortable({ id: p.id });
+type SortablePlayerProps = {
+  p: Player;
+  current: string;
+  onPass: (id: string) => void;
+  onKick: (id: string) => void;
+};
+
+function SortablePlayer({ p, current, onPass, onKick }: SortablePlayerProps) {
+  const { setNodeRef, transform, transition } = useSortable({ id: p.id });
   const style = {
     transform: CSS.Transform.toString(transform),
     transition,
@@ -45,8 +67,6 @@ function SortablePlayer({ p, current, onPass, onKick }: any) {
       p={{ ...p, onPass, onKick }}
       current={current}
       ref={setNodeRef}
-      listeners={listeners}
-      attributes={attributes}
       style={style}
     />
   );

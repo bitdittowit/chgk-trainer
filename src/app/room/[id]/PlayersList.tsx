@@ -1,11 +1,9 @@
 import { Button } from "@/components/ui/button";
 
-export function PlayersList({ players, current, onKick, onPass, onReorder }: {
+export function PlayersList({ players, onKick, onPass }: {
   players: { id: string; name: string; isCurrent: boolean }[];
-  current: string;
   onKick: (id: string) => void;
   onPass: (id: string) => void;
-  onReorder: (ids: string[]) => void;
 }) {
   // TODO: drag-and-drop
   return (

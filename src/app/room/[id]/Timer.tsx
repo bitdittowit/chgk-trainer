@@ -1,5 +1,4 @@
 "use client";
-import { useEffect, useRef, useState } from "react";
 import { Button } from "@/components/ui/button";
 
 export function Timer({

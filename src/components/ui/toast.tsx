@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect } from "react";
 
 export function Toast({ message, open, onClose }: { message: string; open: boolean; onClose: () => void }) {
   useEffect(() => {

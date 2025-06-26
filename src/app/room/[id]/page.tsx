@@ -5,7 +5,6 @@ import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
 import { Button } from "@/components/ui/button";
 import { AlphabetTable, Timer, PlayersList } from "@/components/room";
-import { getSocket } from "@/lib/socket";
 import { joinRoom, crossLetter, startTimer, pauseTimer, resetTimer, passTurn, kickPlayer, reorderPlayers } from "@/lib/roomClient";
 import type { Player, RoomState } from "@/types/room";
 import { Toast } from "@/components/ui/toast";
@@ -27,7 +26,7 @@ export default function RoomPage({ params }: { params: Promise<{ id: string }> }
   useEffect(() => {
     if (!session || !session.user) return;
     const player: Player = {
-      id: (session.user as any).id || "",
+      id: (session.user as { id?: string }).id || "",
       name: session.user.name ?? "Игрок",
       avatar: session.user.image ?? undefined,
       isCurrent: false,
@@ -37,7 +36,7 @@ export default function RoomPage({ params }: { params: Promise<{ id: string }> }
     const cleanup = joinRoom(id, player, (newRoom) => {
       if (room && newRoom) {
         if (room.players.length > newRoom.players.length) setToast({ open: true, message: "Игрок удалён" });
-        if (room.players.length < newRoom.players.length) setToast({ open: true, message: `В комнату вошёл: ${newRoom.players.find(p => !room.players.some(rp => rp.id === p.id))?.name || "Новый игрок"}` });
+        if (room.players.length < newRoom.players.length) setToast({ open: true, message: `В комнату вошёл: ${newRoom.players.find((p: { id: string }) => !room.players.some((rp: { id: string }) => rp.id === p.id))?.name || "Новый игрок"}` });
         if (room.current !== newRoom.current) setToast({ open: true, message: `Ход передан игроку: ${newRoom.players.find(p => p.id === newRoom.current)?.name || ""}` });
         for (const p of newRoom.players) {
           const prev = room.players.find(rp => rp.id === p.id);
@@ -58,7 +57,7 @@ export default function RoomPage({ params }: { params: Promise<{ id: string }> }
     crossLetter(id, letter);
   }
 
-  const currentPlayer = room?.players.find((p) => p.id === (session?.user as any)?.id);
+  const currentPlayer = room?.players.find((p) => p.id === (session?.user as { id?: string })?.id);
 
   function handleStart() {
     if (currentPlayer) startTimer(id, currentPlayer.id);

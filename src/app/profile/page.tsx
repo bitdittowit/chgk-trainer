@@ -2,6 +2,7 @@
 import { useSession, signOut, signIn } from "next-auth/react";
 import { Button } from "@/components/ui/button";
 import { User2Icon } from "lucide-react";
+import Image from "next/image";
 
 export default function ProfilePage() {
   const { data: session, status } = useSession();
@@ -25,7 +26,13 @@ export default function ProfilePage() {
       <h2 className="text-2xl font-bold">Профиль</h2>
       <div className="flex flex-col items-center gap-4 p-6 rounded-lg border bg-card shadow-md">
         {session.user?.image && (
-          <img src={session.user.image} alt={session.user.name || "avatar"} className="w-24 h-24 rounded-full object-cover" />
+          <Image
+            src={session.user.image}
+            alt={session.user.name || "avatar"}
+            width={96}
+            height={96}
+            className="w-24 h-24 rounded-full object-cover"
+          />
         )}
         <div className="text-lg font-semibold">{session.user?.name}</div>
         <div className="text-muted-foreground">{session.user?.email}</div>
